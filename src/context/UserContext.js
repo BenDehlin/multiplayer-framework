@@ -8,11 +8,15 @@ export const UserContext = createContext(null)
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [socket, setSocket] = useState(null)
+  const [room, setRoom] = useState(null)
   const { push } = useHistory()
   console.log(user)
   useEffect(() => {
-    user ? setSocket(io.connect("http://localhost:3333")) : socket && socket.disconnect()
-  }, [user, setSocket])
+    user
+      ? setSocket(io.connect("http://localhost:3333"))
+      : socket && socket.disconnect()
+    !user && setRoom(null)
+  }, [user, setSocket, setRoom])
   const login = (body) => {
     axios
       .post("/auth/login", body)
@@ -59,6 +63,8 @@ export const UserProvider = ({ children }) => {
         getUser,
         socket,
         setSocket,
+        room,
+        setRoom,
       }}
     >
       {children}

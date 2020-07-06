@@ -1,0 +1,1 @@
+SELECT * FROM rooms where game_id = $1 AND active = true;

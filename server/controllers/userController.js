@@ -1,10 +1,10 @@
 const {
   removeSocketId,
   removeUserFromList,
-  removeUserChallenges,
-  findChallengeIndex,
-  generateInitialGameState,
-  removeUserFromGame,
+  // removeUserChallenges,
+  // findChallengeIndex,
+  // generateInitialGameState,
+  // removeUserFromGame,
 } = require("../utils/lobbyUtils")
 
 const getUsers = (req, res) => {
@@ -15,30 +15,44 @@ const getUsers = (req, res) => {
 const join = (app, body, socket) => {
   const io = app.get("io")
   const users = app.get("users")
+  console.log(body)
+  console.log(users)
   const foundUser = users.find(e => e.user_id === body.user_id)
+  console.log({foundUser})
   if(!foundUser){
     socket.join("userlist")
     users.push({ ...body, socket_id: socket.id })
+    console.log(users)
     app.set("users", users)
     io.in("userlist").emit("users", removeSocketId(users))
   }
 }
 const leave = (app, socket) => {
+  const db = app.get('db')
+  const io = app.get('io')
   console.log("user-disconnected", socket.id)
   const user_id = removeUserFromList(app, socket)
-  removeUserChallenges(user_id, app)
-  removeUserFromGame(user_id, app)
-}
-
-const createRoom = (app, socket, {roomName}) => {
-  const io = app.get('io')
-  const db = app.get('db')
-  db.rooms.create_room(roomName).then((rooms) => {
-    io.in('userlist').emit('rooms', rooms)
+  console.log(user_id)
+  db.rooms.deactivate_rooms(user_id).then(rooms => {
+    console.log(rooms)
+    console.log('emit rooms')
+    io.in("userlist").emit("rooms", rooms)
   })
+  // removeUserChallenges(user_id, app)
+  // removeUserFromGame(user_id, app)
 }
 
-const joinRoom = () => {}
+// const createRoom = (app, socket, {roomName}) => {
+//   const {user_id} = app.session.user
+//   const io = app.get('io')
+//   const db = app.get('db')
+//   const [room] = await db.rooms.get_room(user_id)
+//   db.rooms.create_room(roomName).then((rooms) => {
+//     io.in('userlist').emit('rooms', rooms)
+//   })
+// }
+
+// const joinRoom = () => {}
 
 // const challenge = (app, body) => {
 //   const io = app.get("io")

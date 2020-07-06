@@ -1,0 +1,1 @@
+SELECT * FROM rooms where active = true;

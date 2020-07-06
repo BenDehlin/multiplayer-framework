@@ -3,6 +3,7 @@ const express = require("express")
 const session = require("express-session")
 const massive = require("massive")
 const app = express()
+const users = []
 
 const {
   SERVER_PORT,
@@ -13,6 +14,7 @@ const {
 //Controllers
 const authCtrl = require("./controllers/authController")
 const userCtrl = require("./controllers/userController")
+const roomCtrl = require('./controllers/roomController')
 
 //Middleware
 const authMid = require("./middleware/authMiddleware")
@@ -32,6 +34,7 @@ massive({
   ssl: { rejectUnauthorized: false },
 }).then((db) => {
   app.set("db", db)
+  app.set('users', users)
   console.log("Database connected")
   const io = require("socket.io")(
     app.listen(SERVER_PORT, () =>
@@ -50,8 +53,8 @@ massive({
     socket.on("join", (body) => userCtrl.join(app, body, socket))
     socket.on('leave', () => userCtrl.leave(app, socket))
     socket.on("disconnect", () => userCtrl.leave(app, socket))
-    socket.on('create-room', (body) => userCtrl.createRoom(app, socket, body))
-    socket.on('join-room', (body) => userCtrl.joinRoom(app, socket, body))
+    socket.on('create-room', (body) => roomCtrl.createRoom(app, socket, body))
+    socket.on('join-room', (body) => roomCtrl.joinRoom(app, socket, body))
   })
 })
 
@@ -61,3 +64,5 @@ app.post("/auth/register", authCtrl.register)
 app.post("/auth/login", authCtrl.login)
 app.post("/auth/logout", authCtrl.logout)
 app.get("/auth/user", authMid.usersOnly, authCtrl.getUser)
+
+app.get('/api/rooms', roomCtrl.getAllRooms)
