@@ -12,6 +12,7 @@ const {
 
 //Controllers
 const authCtrl = require("./controllers/authController")
+const userCtrl = require("./controllers/userController")
 
 //Middleware
 const authMid = require("./middleware/authMiddleware")
@@ -40,7 +41,17 @@ massive({
   app.set("io", io)
   //Socket connection
   io.on("connection", (socket) => {
-    console.log("User connected")
+    console.log("User Connected")
+    // console.log(socket.id)
+    const sockets = io.clients()
+    for(let key in sockets.sockets){
+      console.log(sockets.sockets[key].conn.id)
+    }
+    socket.on("join", (body) => userCtrl.join(app, body, socket))
+    socket.on('leave', () => userCtrl.leave(app, socket))
+    socket.on("disconnect", () => userCtrl.leave(app, socket))
+    socket.on('create-room', (body) => userCtrl.createRoom(app, socket, body))
+    socket.on('join-room', (body) => userCtrl.joinRoom(app, socket, body))
   })
 })
 
