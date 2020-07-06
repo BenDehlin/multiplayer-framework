@@ -17,21 +17,33 @@ const getAllRooms = (req, res) => {
     })
     .catch((err) => res.status(500).send(err))
 }
-const joinRoom = () => {}
+const joinRoom = async (app, socket, {room_id, game_id, user}) => {
+  const io = app.get('io')
+  const db = app.get('db')
+  const [room] = await db.rooms.check_room_active(room_id)
+  if(room){
+    socket.join(room.room_id)
+    socket.emit('join-room', {room})
+    io.in(room_id).emit('new-user', {user})
+  }else{
+    socket.emit('error', {message: `unable to connect to room ${room_id}`})
+  }
+}
 const leaveRoom = () => {}
 
 const createRoom = async (app, socket, { game_id, user_id }) => {
   // const { user_id } = app.session.user && app.session.user
     const io = app.get("io")
     const db = app.get("db")
-    const [room] = await db.rooms.get_room(user_id)
+    const [room] = await db.rooms.get_room(user_id, game_id)
     console.log(room)
     if (room) {
       db.rooms
         .activate_room(room.room_id)
         .then(([room]) => {
           // console.log(room)
-          socket.emit("join-room", { room })
+          socket.join(room.room_id)
+          socket.emit("create-room", { room })
           db.rooms.get_rooms().then((rooms) => {
             // console.log(rooms)
             io.in("userlist").emit("rooms", rooms)
@@ -45,7 +57,7 @@ const createRoom = async (app, socket, { game_id, user_id }) => {
       db.rooms
         .create_room(user_id, game_id)
         .then(([room]) => {
-          socket.emit("join-room", { room })
+          socket.emit("create-room", { room })
           db.rooms
             .get_rooms()
             .then((rooms) => {
