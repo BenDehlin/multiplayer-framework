@@ -29,3 +29,5 @@ CREATE TABLE rooms
   "createdAt" date default now(),
   "updatedAt" date default now()
 );
+
+-- host_id instead of user_id?

@@ -19,7 +19,9 @@ const Room = () => {
       setRoom(null)
       socket.emit('leave-room', {room_id: room.room_id, user_id})
   }
-  const startGame = () => {}
+  const startGame = () => {
+    socket.emit('start-game', {room_id: room.room_id, user_id})
+  }
   return (
     <div>
       <div>Room</div>

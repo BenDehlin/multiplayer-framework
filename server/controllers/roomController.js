@@ -17,13 +17,11 @@ const getAllRooms = (req, res) => {
     })
     .catch((err) => res.status(500).send(err))
 }
-const joinRoom = async (app, socket, {room_id, game_id, user}) => {
+const joinRoom = async (app, socket, {room_id, user}) => {
   const io = app.get('io')
   const db = app.get('db')
   const rooms = app.get('rooms')
   const room = rooms[room_id]
-  console.log(room)
-  // const [room] = await db.rooms.check_room_active(room_id)
   if(room){
     socket.join(room.room_id)
     room.users = [...room.users, user]
@@ -38,9 +36,6 @@ const joinRoom = async (app, socket, {room_id, game_id, user}) => {
 const leaveRoom = (app, socket, {room_id, user_id}) => {
   const io = app.get('io')
   const rooms = app.get('rooms')
-  // console.log(rooms)
-  // console.log(room_id)
-  // console.log(rooms[`${room_id}`])
   const newUsers = rooms[room_id].users.filter(e => e.user_id !== user_id)
   rooms[room_id].users = newUsers
   app.set('rooms', rooms)
@@ -58,15 +53,9 @@ const cancelRoom = (app, socket, {room_id, user_id}) => {
   db.rooms.deactivate_room(room_id).then(rooms => {
     io.in('user-list').emit('rooms', rooms)
   })
-  // io.in('userlist').emit('rooms', rooms)
-  // const db = app.get("db")
-  // db.rooms.deactivate_room(room_id).then((rooms) => {
-  //   io.in("userlist").emit("rooms", rooms)
-  // })
 }
 
 const createRoom = async (app, socket, { users, game_id, user_id }) => {
-  // const { user_id } = app.session.user && app.session.user
     const io = app.get("io")
     const db = app.get("db")
     const rooms = app.get('rooms')
@@ -101,6 +90,13 @@ const createRoom = async (app, socket, { users, game_id, user_id }) => {
         })
         .catch((err) => console.log(err))
     }
+}
+
+const startGame = async (app, socket, {room_id, user_id}) => {
+  const io = app.get('io')
+  const db = app.get('db')
+  //remove room from joinable rooms
+  //create initial game state and send to all players in room
 }
 
 module.exports = {

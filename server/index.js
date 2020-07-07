@@ -59,6 +59,7 @@ massive({
     socket.on('join-room', (body) => roomCtrl.joinRoom(app, socket, body))
     socket.on('leave-room', (body) => roomCtrl.leaveRoom(app, socket, body))
     socket.on('cancel-room', (body) => roomCtrl.cancelRoom(app, socket, body))
+    socket.on('start-game', (body) => roomCtrl.startGame(app, socket, body))
   })
 })
 
