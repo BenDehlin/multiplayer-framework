@@ -57,6 +57,8 @@ massive({
     socket.on("disconnect", () => userCtrl.leave(app, socket))
     socket.on('create-room', (body) => roomCtrl.createRoom(app, socket, body))
     socket.on('join-room', (body) => roomCtrl.joinRoom(app, socket, body))
+    socket.on('leave-room', (body) => roomCtrl.leaveRoom(app, socket, body))
+    socket.on('cancel-room', (body) => roomCtrl.cancelRoom(app, socket, body))
   })
 })
 

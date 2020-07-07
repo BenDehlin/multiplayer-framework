@@ -10,7 +10,7 @@ export const UserProvider = ({ children }) => {
   const [socket, setSocket] = useState(null)
   const [room, setRoom] = useState(null)
   const { push } = useHistory()
-  console.log(user)
+  // console.log(user)
   useEffect(() => {
     user
       ? setSocket(io.connect("http://localhost:3333"))

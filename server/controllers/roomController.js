@@ -30,12 +30,23 @@ const joinRoom = async (app, socket, {room_id, game_id, user}) => {
     rooms[room_id] = room
     app.set('rooms', rooms)
     socket.emit('join-room', room)
-    io.in(room_id).emit('new-user', room)
+    io.in(room_id).emit('room', room)
   }else{
     socket.emit('error', {message: `unable to connect to room ${room_id}`})
   }
 }
-const leaveRoom = () => {}
+const leaveRoom = (app, socket, {room_id, user_id}) => {
+  const io = app.get('io')
+  const rooms = app.get('rooms')
+  // console.log(rooms)
+  // console.log(room_id)
+  // console.log(rooms[`${room_id}`])
+  const newUsers = rooms[room_id].users.filter(e => e.user_id !== user_id)
+  rooms[room_id].users = newUsers
+  app.set('rooms', rooms)
+  socket.leave(room_id)
+  io.in(room_id).emit('room', {...rooms[room_id]})
+}
 
 const createRoom = async (app, socket, { users, game_id, user_id }) => {
   // const { user_id } = app.session.user && app.session.user
@@ -75,11 +86,11 @@ const createRoom = async (app, socket, { users, game_id, user_id }) => {
     }
 }
 
-const hostLeaveRoom = (app, { room_id }) => {
-  const db = app.get("db")
-  db.rooms.deactivate_room(room_id).then((rooms) => {
-    io.in("userlist").emit("rooms", rooms)
-  })
+const cancelRoom = (app, socket, body) => {
+  // const db = app.get("db")
+  // db.rooms.deactivate_room(room_id).then((rooms) => {
+  //   io.in("userlist").emit("rooms", rooms)
+  // })
 }
 
 module.exports = {
@@ -87,5 +98,6 @@ module.exports = {
   getAllRooms,
   createRoom,
   joinRoom,
-  hostLeaveRoom,
+  cancelRoom,
+  leaveRoom
 }

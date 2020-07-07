@@ -33,12 +33,18 @@ const leave = (app, socket) => {
   const rooms = app.get("rooms")
   console.log("user-disconnected", socket.id)
   const user_id = removeUserFromList(app, socket)
-  for (let key in rooms === user_id) {
-    if (rooms[key].user_id) {
+  for (let key in rooms) {
+    if (rooms[key].user_id === user_id) {
+      io.in(rooms[key].room_id).emit('host-disconnected')
       delete rooms[key]
+    }else{
+      const newUsers = rooms[key].users.filter((e) => e.user_id !== user_id)
+      if (newUsers.length !== rooms[key].users.length) {
+        rooms[key].users = newUsers
+        io.in(rooms[key].room_id).emit("room", rooms[key])
+      }
     }
   }
-  console.log(rooms)
   app.set("rooms", rooms)
   db.rooms.deactivate_rooms(user_id).then((rooms) => {
     io.in("userlist").emit("rooms", rooms)
