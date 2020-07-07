@@ -13,7 +13,6 @@ const Room = () => {
     })
   }, [])
   const cancelRoom = () => {
-      console.log(room)
       socket.emit('cancel-room', {room_id: room.room_id, user_id})
   }
   const leaveRoom = () => {

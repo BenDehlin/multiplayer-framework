@@ -48,6 +48,23 @@ const leaveRoom = (app, socket, {room_id, user_id}) => {
   io.in(room_id).emit('room', {...rooms[room_id]})
 }
 
+const cancelRoom = (app, socket, {room_id, user_id}) => {
+  const io = app.get('io')
+  const db = app.get('db')
+  const rooms = app.get('rooms')
+  delete rooms[room_id]
+  app.set('rooms', rooms)
+  io.in(room_id).emit('host-disconnected')
+  db.rooms.deactivate_room(room_id).then(rooms => {
+    io.in('user-list').emit('rooms', rooms)
+  })
+  // io.in('userlist').emit('rooms', rooms)
+  // const db = app.get("db")
+  // db.rooms.deactivate_room(room_id).then((rooms) => {
+  //   io.in("userlist").emit("rooms", rooms)
+  // })
+}
+
 const createRoom = async (app, socket, { users, game_id, user_id }) => {
   // const { user_id } = app.session.user && app.session.user
     const io = app.get("io")
@@ -84,13 +101,6 @@ const createRoom = async (app, socket, { users, game_id, user_id }) => {
         })
         .catch((err) => console.log(err))
     }
-}
-
-const cancelRoom = (app, socket, body) => {
-  // const db = app.get("db")
-  // db.rooms.deactivate_room(room_id).then((rooms) => {
-  //   io.in("userlist").emit("rooms", rooms)
-  // })
 }
 
 module.exports = {
