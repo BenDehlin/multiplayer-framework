@@ -22,9 +22,7 @@ const removeUserFromList = (app, socket) => {
     //   { userIndex: null, user_id: null }
     // )
     const user = users.find((e) => e.socket_id === socket.id)
-    console.log({user})
     const filteredUsers = users.filter((e) => +e.user_id !== +user.user_id)
-    console.log({filteredUsers})
     // users.splice(userIndex, 1)
     // console.log(filteredUsers)
     app.set("users", filteredUsers)

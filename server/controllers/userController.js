@@ -12,30 +12,35 @@ const getUsers = (req, res) => {
   res.status(200).send(removeSocketId(users))
 }
 
-const join = (app, body, socket) => {
+const join = (app, socket, body) => {
   const io = app.get("io")
+  const db = app.get("db")
   const users = app.get("users")
-  console.log(body)
-  console.log(users)
-  const foundUser = users.find(e => e.user_id === body.user_id)
-  console.log({foundUser})
-  if(!foundUser){
+  const foundUser = users.find((e) => e.user_id === body.user_id)
+  if (!foundUser) {
+    db.rooms.deactivate_rooms(body.user_id).then((rooms) => {
+      io.in("userlist").emit("rooms", rooms)
+    })
     socket.join("userlist")
     users.push({ ...body, socket_id: socket.id })
-    console.log(users)
     app.set("users", users)
     io.in("userlist").emit("users", removeSocketId(users))
   }
 }
 const leave = (app, socket) => {
-  const db = app.get('db')
-  const io = app.get('io')
+  const db = app.get("db")
+  const io = app.get("io")
+  const rooms = app.get("rooms")
   console.log("user-disconnected", socket.id)
   const user_id = removeUserFromList(app, socket)
-  console.log(user_id)
-  db.rooms.deactivate_rooms(user_id).then(rooms => {
-    console.log(rooms)
-    console.log('emit rooms')
+  for (let key in rooms === user_id) {
+    if (rooms[key].user_id) {
+      delete rooms[key]
+    }
+  }
+  console.log(rooms)
+  app.set("rooms", rooms)
+  db.rooms.deactivate_rooms(user_id).then((rooms) => {
     io.in("userlist").emit("rooms", rooms)
   })
   // removeUserChallenges(user_id, app)

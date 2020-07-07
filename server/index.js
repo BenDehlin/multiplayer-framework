@@ -4,6 +4,7 @@ const session = require("express-session")
 const massive = require("massive")
 const app = express()
 const users = []
+const rooms = {}
 
 const {
   SERVER_PORT,
@@ -35,6 +36,7 @@ massive({
 }).then((db) => {
   app.set("db", db)
   app.set('users', users)
+  app.set('rooms', rooms)
   console.log("Database connected")
   const io = require("socket.io")(
     app.listen(SERVER_PORT, () =>
@@ -50,7 +52,7 @@ massive({
     for(let key in sockets.sockets){
       console.log(sockets.sockets[key].conn.id)
     }
-    socket.on("join", (body) => userCtrl.join(app, body, socket))
+    socket.on("join", (body) => userCtrl.join(app, socket, body))
     socket.on('leave', () => userCtrl.leave(app, socket))
     socket.on("disconnect", () => userCtrl.leave(app, socket))
     socket.on('create-room', (body) => roomCtrl.createRoom(app, socket, body))

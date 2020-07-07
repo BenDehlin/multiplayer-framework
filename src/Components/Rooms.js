@@ -3,12 +3,7 @@ import { UserContext } from "../context/UserContext"
 import axios from "axios"
 
 const Rooms = () => {
-  const {
-    socket,
-    user,
-    room,
-    setRoom,
-  } = useContext(UserContext)
+  const { socket, user, room, setRoom } = useContext(UserContext)
   const [rooms, setRooms] = useState([])
   useEffect(() => {
     axios.get("/api/rooms").then(({ data }) => setRooms(data))
@@ -17,15 +12,16 @@ const Rooms = () => {
     socket.on("create-room", (body) => {
       console.log("hit create")
       console.log(body)
-      setRoom({...body, users: [user]})
+      setRoom({ ...body, users: [user] })
     })
     socket.on("rooms", (body) => {
       console.log("hit rooms")
       console.log(body)
       setRooms(body)
     })
-    socket.on('join-room', (body) => {
-      console.log(body)
+    socket.on("join-room", (room) => {
+      console.log(room)
+      setRoom(room)
     })
   }, [])
   const joinRoom = (room_id) => {
@@ -37,7 +33,7 @@ const Rooms = () => {
       <div>
         {rooms.map((e) => {
           return (
-            <div>
+            <div key={e.room_id}>
               <div>{e.room_id}</div>
               <button onClick={() => joinRoom(e.room_id)}>Join Room</button>
             </div>
@@ -45,7 +41,13 @@ const Rooms = () => {
         })}
       </div>
       <button
-        onClick={() => socket.emit("create-room", { user_id: user.user_id, game_id: 1 })}
+        onClick={() =>
+          socket.emit("create-room", {
+            users: [user],
+            user_id: user.user_id,
+            game_id: 1,
+          })
+        }
       >
         Create Room
       </button>
