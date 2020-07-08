@@ -92,11 +92,16 @@ const createRoom = async (app, socket, { users, game_id, user_id }) => {
     }
 }
 
-const startGame = async (app, socket, {room_id, user_id}) => {
+const startGame = async (app, socket, {players, room_id}) => {
   const io = app.get('io')
   const db = app.get('db')
+  const state= {
+    gameStart: true,
+    players
+  }
   //remove room from joinable rooms
   //create initial game state and send to all players in room
+  io.in(room_id).emit('game-start', state)
 }
 
 module.exports = {
@@ -105,5 +110,6 @@ module.exports = {
   createRoom,
   joinRoom,
   cancelRoom,
-  leaveRoom
+  leaveRoom,
+  startGame
 }
