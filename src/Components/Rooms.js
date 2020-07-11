@@ -35,6 +35,7 @@ const Rooms = () => {
           return (
             <div key={e.room_id}>
               <div>{e.room_id}</div>
+              <div>Game: {e.game_name}</div>
               <button onClick={() => joinRoom(e.room_id)}>Join Room</button>
             </div>
           )

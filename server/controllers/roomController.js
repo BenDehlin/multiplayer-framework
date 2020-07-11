@@ -13,6 +13,7 @@ const getAllRooms = (req, res) => {
   db.rooms
     .get_rooms()
     .then((rooms) => {
+      // console.log(rooms)
       res.status(200).send(rooms)
     })
     .catch((err) => res.status(500).send(err))
@@ -70,6 +71,7 @@ const createRoom = async (app, socket, { users, game_id, user_id }) => {
           socket.join(room.room_id)
           socket.emit("create-room", { ...room, users })
           db.rooms.get_rooms().then((rooms) => {
+            console.log('inside if', rooms)
             io.in("userlist").emit("rooms", rooms)
           }).catch(err => console.log(err))
         })
@@ -84,6 +86,7 @@ const createRoom = async (app, socket, { users, game_id, user_id }) => {
           db.rooms
             .get_rooms()
             .then((rooms) => {
+              console.log('inside else', rooms)
               io.in("userlist").emit("rooms", rooms)
             })
             .catch((err) => console.log(err))

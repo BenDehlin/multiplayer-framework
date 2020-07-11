@@ -33,6 +33,7 @@ const Room = () => {
   const startGame = () => {
     socket.emit("start-game", { room_id: room.room_id, players: room.users })
   }
+  console.log(room)
   return (
     <div>
       <div>Room</div>
